@@ -36,10 +36,13 @@
   --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
   --r-tile: 18px;
 
-  /* Skool gold. Gold is only ever a FILL — ink on or beside it is --accent-deep. */
-  --accent: #e0b467;
-  --accent-deep: #8a6516;
-  --accent-tint: rgba(224, 180, 103, 0.2);
+  /* Red, white, gray, black. Red is the accent: fills and signals only —
+     ink on or beside a red tint is --accent-deep. On dark surfaces use
+     --accent-bright (raw #dc2626 goes muddy on near-black). */
+  --accent: #dc2626;
+  --accent-deep: #991b1b;
+  --accent-tint: rgba(220, 38, 38, 0.11);
+  --accent-bright: #f05e4d;
   --line-input: #c3ccda;
 
   --dark: #16181d;
@@ -75,7 +78,7 @@ img { max-width: 100%; }
 .wordmark .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
 .wordmark .tag {
   margin-left: 2px; padding: 3px 9px; border-radius: 999px;
-  background: var(--accent); color: var(--dark);
+  background: var(--accent); color: #fff;
   font-size: 11.5px; font-weight: 800; letter-spacing: 0.1em;
 }
 .hero h1 {
@@ -83,7 +86,7 @@ img { max-width: 100%; }
   font-size: clamp(30px, 5.5vw, 44px);
   font-weight: 800; letter-spacing: -0.02em; line-height: 1.12;
 }
-.hero h1 em { font-style: normal; color: var(--accent); }
+.hero h1 em { font-style: normal; color: var(--accent-bright); }
 .hero p {
   margin-top: 14px; max-width: 560px;
   font-size: clamp(15.5px, 2.4vw, 17.5px); color: rgba(255, 255, 255, 0.75);
@@ -127,7 +130,8 @@ img { max-width: 100%; }
   outline: none;
   transition: border-color 0.12s, box-shadow 0.12s;
 }
-.axe-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-tint); }
+/* focus is dark, not red — red is reserved for errors and urgency signals */
+.axe-input:focus { border-color: var(--ink-bold); box-shadow: 0 0 0 4px rgba(11, 13, 17, 0.08); }
 .axe-input::placeholder { color: var(--ink-5); }
 textarea.axe-input { height: auto; min-height: 96px; padding: 13px 18px; resize: vertical; line-height: 1.55; }
 select.axe-input { appearance: none; -webkit-appearance: none; padding-right: 44px; cursor: pointer; }
@@ -163,7 +167,7 @@ input[type="date"].axe-input { padding-right: 14px; }
 .type-card svg { width: 20px; height: 20px; stroke-width: 1.9; color: var(--ink-3); }
 .type-card b { display: block; margin-top: 8px; font-size: 15px; font-weight: 700; color: var(--ink-bold); }
 .type-card span { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-4); }
-.type-card.on { border-color: var(--accent); background: rgba(224, 180, 103, 0.08); box-shadow: 0 0 0 3px var(--accent-tint); }
+.type-card.on { border-color: var(--accent); background: rgba(220, 38, 38, 0.05); box-shadow: 0 0 0 3px var(--accent-tint); }
 .type-card.on svg { color: var(--accent-deep); }
 
 .axe-seg { display: flex; width: fit-content; padding: 3px; background: var(--inset); border-radius: 12px; }
@@ -292,11 +296,11 @@ input[type="date"].axe-input { padding-right: 14px; }
   display: inline-flex; align-items: center; gap: 8px;
   text-decoration: none;
   margin-top: 24px; height: 50px; padding: 0 30px; border-radius: 12px;
-  background: var(--accent); color: var(--dark);
+  background: var(--accent); color: #fff;
   font-size: 15.5px; font-weight: 800;
   transition: filter 0.12s;
 }
-.cta-band .btn-gold:hover { filter: brightness(1.05); }
+.cta-band .btn-gold:hover { filter: brightness(1.1); }
 
 footer { text-align: center; padding: 26px 20px 34px; font-size: 13px; color: var(--ink-5); background: var(--dark); }
 </style>
