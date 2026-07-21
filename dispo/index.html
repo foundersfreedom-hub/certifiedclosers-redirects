@@ -706,9 +706,10 @@ footer { text-align: center; padding: 26px 20px 34px; font-size: 13px; color: va
 <script>
 "use strict";
 /* ============ CONFIG ============ */
-// ROY: paste the lead destination here when you pick one (webhook / API URL).
-// While it's empty, submissions complete the flow and are kept in localStorage + console only.
-const SUBMIT_ENDPOINT = "";
+// Deals post straight into Discord: #jv-deals-submissions (VANTAGE ACQS), webhook "JV Deal Desk".
+// This URL is a write-only door — it can post to that one channel and read nothing.
+// If it ever gets spammed, regenerate it in Discord (Channel > Integrations > Webhooks) and paste the new one here.
+const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1529181835936923760/yB6lXfHt2PjG9lziGvha2SG-i1k33jfsTSmxS5GYxTa-SG6l20qgJynBACbFzslBekC3";
 const QUALIFY_PCT = 0.75; // deal check: contract + repairs should sit under this share of ARV
 
 /* ============ STATE ============ */
@@ -949,6 +950,59 @@ function payload() {
   };
 }
 
+/* ---- build the Discord card ---- */
+const TYPE_EMOJI = { cash: "💵 Cash", creative: "🤝 Creative", novation: "📄 Novation" };
+const CONTACT_LABEL = { call: "📞 Call", text: "💬 Text", email: "✉️ Email" };
+function fmtPhone(d) {
+  const p = (d || "").replace(/[^0-9]/g, "").replace(/^1/, "");
+  return p.length === 10 ? `(${p.slice(0, 3)}) ${p.slice(3, 6)}-${p.slice(6)}` : (d || "");
+}
+function daysLeft(isoDate) {
+  if (!isoDate) return null;
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return Math.round((new Date(isoDate + "T00:00:00") - t) / 86400000);
+}
+function discordPayload(d) {
+  const p = d.property, deal = d.deal, c = d.contact;
+  const arv = deal.arv, target = Math.round(arv * QUALIFY_PCT), allIn = deal.contract_price + deal.repairs;
+  const strong = deal.passes_75_rule;
+  const dl = daysLeft(deal.contract_expires);
+  const expDate = deal.contract_expires
+    ? new Date(deal.contract_expires + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "Not given";
+  const runwayTag = dl === null ? "" : dl <= 0 ? " ⏰ TODAY" : dl <= 14 ? ` ⏰ ${dl}d left` : ` · ${dl}d left`;
+  const cut = (s, n) => (s && s.length > n ? s.slice(0, n - 1) + "…" : (s || "—"));
+  const addr = `${p.address}, ${p.city}, ${p.state} ${p.zip}`;
+
+  const fields = [
+    { name: "Deal Type", value: (TYPE_EMOJI[deal.type] || deal.type) + (p.on_market ? " · On market" : " · Off market"), inline: true },
+    { name: "Beds / Baths", value: `${p.beds} bd / ${p.baths} ba${p.sqft ? ` · ${p.sqft.toLocaleString("en-US")} sqft` : ""}`, inline: true },
+    { name: "Contract Ends", value: expDate + runwayTag, inline: true },
+    { name: "ARV", value: fmt(arv), inline: true },
+    { name: "Repairs", value: fmt(deal.repairs), inline: true },
+    { name: "Under Contract", value: fmt(deal.contract_price), inline: true },
+    { name: "Their Asking", value: fmt(deal.asking_price), inline: true },
+    { name: `75% Check ${strong ? "✅" : "⚠️"}`, value: `${strong ? "Strong" : "Tight"} — all-in ${fmt(allIn)} vs ${fmt(target)}`, inline: true },
+    { name: "​", value: "​", inline: true },
+    { name: "Comps", value: cut(deal.comps, 1000), inline: false },
+    { name: "Seller Situation", value: cut(deal.seller_situation, 1000), inline: false },
+    { name: "📇 Submitted By", value: `**${c.first_name} ${c.last_name}**\n${fmtPhone(c.phone)} · ${c.email}\nBest way to reach: ${CONTACT_LABEL[c.preferred] || c.preferred}`, inline: false }
+  ];
+  if (c.notes) fields.push({ name: "Notes", value: cut(c.notes, 1000), inline: false });
+
+  return {
+    username: "JV Deal Desk",
+    embeds: [{
+      title: `🏠 ${addr}`,
+      url: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr),
+      color: strong ? 0x2ecc71 : 0xe67e22, // green if it pencils, orange if tight
+      fields: fields,
+      footer: { text: "New JV deal · certifiedclosers.net/dispo" },
+      timestamp: d.submitted_at
+    }]
+  };
+}
+
 let sending = false;
 $("submit-btn").addEventListener("click", async () => {
   if (sending || !validStep3()) return;
@@ -963,22 +1017,21 @@ $("submit-btn").addEventListener("click", async () => {
     localStorage.setItem("ccdispo_deals", JSON.stringify(kept));
   } catch (e) { /* storage full or blocked — fine */ }
 
-  if (SUBMIT_ENDPOINT) {
+  // a bot tripped the honeypot: fake success, post nothing
+  if (!data.hp) {
     try {
-      const res = await fetch(SUBMIT_ENDPOINT, {
+      const res = await fetch(DISCORD_WEBHOOK, {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(data)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(discordPayload(data))
       });
-      if (!res.ok) throw new Error("bad status " + res.status);
+      if (!res.ok && res.status !== 204) throw new Error("bad status " + res.status);
     } catch (e) {
       sending = false;
       btn.innerHTML = "Submit My Deal";
       alert("That didn't go through. Give it another shot in a minute, your answers are still here.");
       return;
     }
-  } else {
-    console.log("[dispo] no endpoint wired yet — submission kept locally:", data);
   }
 
   STEPS.forEach(id => { $(id).hidden = true; });
