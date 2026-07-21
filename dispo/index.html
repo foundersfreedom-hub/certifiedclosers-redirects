@@ -146,7 +146,39 @@ select.axe-input { appearance: none; -webkit-appearance: none; padding-right: 44
   content: "$"; position: absolute; left: 17px; top: 50%; transform: translateY(-50%);
   font-size: 15px; color: var(--ink-4); pointer-events: none;
 }
-input[type="date"].axe-input { padding-right: 14px; }
+/* ---- custom calendar (contract end date) ---- */
+.cal-wrap { position: relative; }
+.cal-trigger { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; cursor: pointer; }
+.cal-trigger .ph { color: var(--ink-5); }
+.cal-trigger svg { width: 18px; height: 18px; stroke-width: 1.9; color: var(--ink-4); flex: none; }
+.cal-pop {
+  position: absolute; z-index: 30; top: calc(100% + 8px); left: 0;
+  width: 340px; max-width: 100%;
+  background: var(--elev); border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.16);
+  padding: 16px;
+}
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-head b { font-size: 15px; font-weight: 800; color: var(--ink-bold); }
+.cal-nav { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: background 0.12s; }
+.cal-nav:hover { background: var(--hover-wash); }
+.cal-nav svg { width: 18px; height: 18px; stroke-width: 2.2; color: var(--ink-2); }
+.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 4px; }
+.cal-week span { text-align: center; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--ink-5); padding: 4px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day {
+  height: 40px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; color: var(--ink-1); font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s;
+}
+.cal-day:hover:not(:disabled):not(.on) { background: var(--hover-wash); }
+.cal-day.dim { color: var(--ink-5); }
+.cal-day:disabled { color: var(--ink-5); opacity: 0.4; cursor: default; }
+.cal-day.today { box-shadow: inset 0 0 0 1.5px var(--line-input); }
+.cal-day.on { background: var(--accent); color: #fff; }
+.cal-runway { margin-top: 8px; font-size: 13.5px; font-weight: 600; color: var(--ink-4); }
+.cal-runway.rush { color: var(--warn-deep); }
 
 .row { display: grid; gap: 12px; }
 .row.r2 { grid-template-columns: 1fr 1fr; }
@@ -451,8 +483,23 @@ footer { text-align: center; padding: 26px 20px 34px; font-size: 13px; color: va
         </div>
       </div>
       <div class="q">
-        <label class="q-label" for="f-expires">When does your contract end?</label>
-        <input class="axe-input" id="f-expires" type="date">
+        <span class="q-label">When does your contract end?</span>
+        <div class="cal-wrap" id="cal-wrap">
+          <button type="button" class="axe-input cal-trigger" id="f-expires" aria-haspopup="dialog">
+            <span id="cal-value" class="ph">Pick the date</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </button>
+          <div class="cal-pop" id="cal-pop" hidden>
+            <div class="cal-head">
+              <button type="button" class="cal-nav" id="cal-prev" aria-label="Earlier month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+              <b id="cal-month"></b>
+              <button type="button" class="cal-nav" id="cal-next" aria-label="Later month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+            </div>
+            <div class="cal-week"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+            <div class="cal-grid" id="cal-grid"></div>
+          </div>
+        </div>
+        <div class="cal-runway" id="cal-runway" hidden></div>
         <div class="axe-err" id="e-expires">Pick the date your purchase agreement expires.</div>
       </div>
       <div class="q">
@@ -620,7 +667,7 @@ footer { text-align: center; padding: 26px 20px 34px; font-size: 13px; color: va
   <div class="faq">
     <details>
       <summary>What's the split?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></summary>
-      <div class="a">Every JV is spelled out in writing before we market your deal. You'll know your exact number before you sign anything, and it doesn't change after. No surprises.</div>
+      <div class="a">Straight 50/50. You found the deal, we sell it, we split the fee right down the middle. It goes in the JV agreement in writing before your deal moves an inch, and it doesn't change after. No surprises.</div>
     </details>
     <details>
       <summary>Do I need my own buyers?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></summary>
@@ -665,7 +712,7 @@ const SUBMIT_ENDPOINT = "";
 const QUALIFY_PCT = 0.75; // deal check: contract + repairs should sit under this share of ARV
 
 /* ============ STATE ============ */
-const S = { dealType: "", market: "off", contact: "text" };
+const S = { dealType: "", market: "off", contact: "text", expires: "" };
 const $ = id => document.getElementById(id);
 const num = id => parseInt(($(id).value || "").replace(/[^0-9]/g, ""), 10) || 0;
 const fmt = n => "$" + n.toLocaleString("en-US");
@@ -705,6 +752,71 @@ function seg(containerId, dataKey, stateKey) {
 }
 seg("market-seg", "market", "market");
 seg("contact-seg", "contact", "contact");
+
+/* ============ CALENDAR (contract end date) ============ */
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CAL = { view: new Date() };
+const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const today0 = () => { const t = new Date(); t.setHours(0, 0, 0, 0); return t; };
+
+function drawCal() {
+  const v = CAL.view;
+  $("cal-month").textContent = MONTH_NAMES[v.getMonth()] + " " + v.getFullYear();
+  const first = new Date(v.getFullYear(), v.getMonth(), 1);
+  const start = new Date(first);
+  start.setDate(1 - first.getDay());
+  const t0 = today0(), tIso = iso(t0);
+  const grid = $("cal-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "cal-day";
+    b.textContent = d.getDate();
+    b.dataset.date = iso(d);
+    if (d.getMonth() !== v.getMonth()) b.classList.add("dim");
+    if (d < t0) b.disabled = true;
+    if (b.dataset.date === tIso) b.classList.add("today");
+    if (S.expires === b.dataset.date) b.classList.add("on");
+    grid.appendChild(b);
+  }
+}
+function calOpen() {
+  if (S.expires) { const [y, m] = S.expires.split("-").map(Number); CAL.view = new Date(y, m - 1, 1); }
+  drawCal();
+  $("cal-pop").hidden = false;
+}
+function calClose() { $("cal-pop").hidden = true; }
+
+function runway() {
+  const el = $("cal-runway");
+  if (!S.expires) { el.hidden = true; return; }
+  const days = Math.round((new Date(S.expires + "T00:00:00") - today0()) / 86400000);
+  el.hidden = false;
+  if (days <= 0) { el.className = "cal-runway rush"; el.textContent = "That's today. Send it and keep your phone in your hand."; }
+  else if (days <= 14) { el.className = "cal-runway rush"; el.textContent = `Only ${days} day${days === 1 ? "" : "s"} left on it. Send it now.`; }
+  else { el.className = "cal-runway"; el.textContent = `That gives us ${days} days of runway.`; }
+}
+
+$("f-expires").addEventListener("click", () => { $("cal-pop").hidden ? calOpen() : calClose(); });
+$("cal-prev").addEventListener("click", e => { e.stopPropagation(); CAL.view = new Date(CAL.view.getFullYear(), CAL.view.getMonth() - 1, 1); drawCal(); });
+$("cal-next").addEventListener("click", e => { e.stopPropagation(); CAL.view = new Date(CAL.view.getFullYear(), CAL.view.getMonth() + 1, 1); drawCal(); });
+$("cal-grid").addEventListener("click", e => {
+  const b = e.target.closest(".cal-day");
+  if (!b || b.disabled) return;
+  S.expires = b.dataset.date;
+  const d = new Date(S.expires + "T12:00:00");
+  const label = $("cal-value");
+  label.textContent = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  label.classList.remove("ph");
+  hideErr("e-expires", "f-expires");
+  runway();
+  calClose();
+});
+document.addEventListener("click", e => { if (!$("cal-wrap").contains(e.target)) calClose(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") calClose(); });
 
 /* ============ DEAL CHECK (75% rule, never blocks) ============ */
 function dealCheck() {
@@ -749,7 +861,7 @@ function validStep2() {
   ok = need("f-repairs", "e-repairs", $("f-repairs").value.trim() !== "") && ok;
   ok = need("f-contract", "e-contract", num("f-contract") > 0) && ok;
   ok = need("f-asking", "e-asking", num("f-asking") > 0) && ok;
-  ok = need("f-expires", "e-expires", !!$("f-expires").value) && ok;
+  ok = need("f-expires", "e-expires", !!S.expires) && ok;
   ok = need("f-comps", "e-comps", $("f-comps").value.trim().length > 3) && ok;
   ok = need("f-seller", "e-seller", $("f-seller").value.trim().length > 3) && ok;
   return ok;
@@ -767,7 +879,7 @@ function validStep3() {
 /* clear an error the moment the field gets fixed */
 [["f-address","e-address"],["f-city","e-city"],["f-state","e-state"],["f-zip","e-zip"],["f-beds","e-beds"],
  ["f-baths","e-baths"],["f-arv","e-arv"],["f-repairs","e-repairs"],["f-contract","e-contract"],
- ["f-asking","e-asking"],["f-expires","e-expires"],["f-comps","e-comps"],["f-seller","e-seller"],
+ ["f-asking","e-asking"],["f-comps","e-comps"],["f-seller","e-seller"],
  ["f-first","e-first"],["f-last","e-last"],["f-phone","e-phone"],["f-email","e-email"]].forEach(([f, e]) => {
   $(f).addEventListener("input", () => hideErr(e, f));
 });
@@ -795,8 +907,7 @@ function fillReview() {
   $("rv-arv").textContent = fmt(num("f-arv"));
   $("rv-allin").textContent = `${fmt(num("f-contract"))} + ${fmt(num("f-repairs"))}`;
   $("rv-asking").textContent = fmt(num("f-asking"));
-  const d = $("f-expires").value;
-  $("rv-expires").textContent = d ? new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+  $("rv-expires").textContent = S.expires ? new Date(S.expires + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
 }
 
 /* ============ SUBMIT ============ */
@@ -820,7 +931,7 @@ function payload() {
       repairs: num("f-repairs"),
       contract_price: num("f-contract"),
       asking_price: num("f-asking"),
-      contract_expires: $("f-expires").value,
+      contract_expires: S.expires,
       comps: $("f-comps").value.trim(),
       seller_situation: $("f-seller").value.trim(),
       passes_75_rule: (num("f-contract") + num("f-repairs")) <= Math.round(num("f-arv") * QUALIFY_PCT)
@@ -888,6 +999,11 @@ $("again-btn").addEventListener("click", () => {
   $("f-state").selectedIndex = 0;
   document.querySelectorAll("#deal-types .type-card").forEach(b => b.classList.remove("on"));
   S.dealType = "";
+  S.expires = "";
+  const calLabel = $("cal-value");
+  calLabel.textContent = "Pick the date";
+  calLabel.classList.add("ph");
+  $("cal-runway").hidden = true;
   $("check-panel").className = "check-panel";
   $("progress").hidden = false;
   const btn = $("submit-btn");
