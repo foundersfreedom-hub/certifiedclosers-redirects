@@ -1003,11 +1003,13 @@ function discordPayload(d) {
   };
 }
 
-let sending = false;
+let sending = false, submitted = false;
 $("submit-btn").addEventListener("click", async () => {
-  if (sending || !validStep3()) return;
+  // submitted stays true after a success so a double-tap can never post twice; reset only on "submit another"
+  if (sending || submitted || !validStep3()) return;
   sending = true;
   const btn = $("submit-btn");
+  btn.disabled = true;
   btn.textContent = "Sending...";
   const data = payload();
   try {
@@ -1028,12 +1030,14 @@ $("submit-btn").addEventListener("click", async () => {
       if (!res.ok && res.status !== 204) throw new Error("bad status " + res.status);
     } catch (e) {
       sending = false;
+      btn.disabled = false;
       btn.innerHTML = "Submit My Deal";
       alert("That didn't go through. Give it another shot in a minute, your answers are still here.");
       return;
     }
   }
 
+  submitted = true; // locked in — no re-posting this deal
   STEPS.forEach(id => { $(id).hidden = true; });
   $("progress").hidden = true;
   $("step-done").hidden = false;
@@ -1059,7 +1063,9 @@ $("again-btn").addEventListener("click", () => {
   $("cal-runway").hidden = true;
   $("check-panel").className = "check-panel";
   $("progress").hidden = false;
+  submitted = false; // ready for a fresh deal
   const btn = $("submit-btn");
+  btn.disabled = false;
   btn.innerHTML = 'Submit My Deal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px"><path d="m5 12 4 4L19 6"/></svg>';
   goTo(1);
 });
