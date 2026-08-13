@@ -33,8 +33,10 @@ Multiple choice:
 - Help escape my 9-5 & more time for my loved ones
 
 **7. This call will walk you through how to add an extra $10k–$30k/mo in 99 days with a custom week-by-week business roadmap... The people who get results fastest are the ones who show up ready to move. Do you have $3K–$5K set aside to invest in your business right now?**
-Multiple choice — **this is the money-qualifier**:
+Multiple choice — **this is the money-qualifier**. Three options (the middle one
+was recovered from live GHL notes, not the API, which does not expose choices):
 - Yes! - I have $3000+ ready to invest in my future today IF I believe I'll make it back within 30 days
+- Ugh - My capital is limited right now ($1K–$3K range), or have access to a 680+ credit score if there are payment plans for me
 - Honestly, I don't have the money to invest and cashflow is tight at the moment
 
 **8. Calendly** — booking step, embedded at the end. Booking happens *after* qualifying.
@@ -54,25 +56,35 @@ Multiple choice — **this is the money-qualifier**:
 
 ---
 
-## Carrying this to GoHighLevel
+## How this lands in GoHighLevel — SOLVED, Aug 13 2026
 
-When rebuilt in GHL, each answer needs somewhere to live:
+Studied 700 live leads in CLOSERS PIPE. **The answers do NOT go into custom fields.**
+They go into a single **note** on the contact, in Question/Answer format. That is the
+convention across every existing lead, and `resources/tools/core/ghl_lead.py` now
+reproduces it **byte for byte** (verified against contact `K9Oh8fbTpCXFELJNVbxS`).
 
-| Field | GHL destination |
+| Piece | Where it lands |
 |---|---|
-| Full Name | standard contact first/last name |
-| Phone | standard contact phone |
-| Email | standard contact email |
-| Q4 current work | custom field, long text |
-| Q5 deals needed | custom field, dropdown (keep labels verbatim) |
-| Q6 99-day goal | custom field, dropdown (keep labels verbatim) |
-| Q7 budget ready | custom field, dropdown — **drives routing** |
-| Booking | GHL calendar, or keep Calendly |
+| Full Name | contact first/last name, and the opportunity name |
+| Phone, Email | standard contact fields |
+| Q4–Q7 answers | **one note**, Question/Answer format |
+| Calendly slot | custom fields `Booked Call Date/Time` + `Calendly Details` |
+| The lead itself | opportunity, $0, status open, **NEW CLOSERS PIPE 2.0 → Waiting Pre-Call** |
+| Tag | `calendly booked` |
 
-Open decisions for Roy:
-1. Keep Calendly for booking, or move to a GHL calendar so booking and CRM are one system?
-2. Should a "no budget" answer still be allowed to book, or route to nurture instead?
-3. Which pipeline and stage should a new application land in?
+Two formatting quirks are reproduced on purpose because all 700 existing notes have
+them: Q4 is written `Question:` with no space, and its answer is prefixed `Answer:/`
+with a stray slash. Both come from the old Fillout/Zapier mapping. Set
+`CLEAN_FORMAT = True` in `ghl_lead.py` to normalise them instead.
 
-**Do not delete the Fillout form until GHL is live and tested** — it holds the historical
-submissions.
+**The old Zapier flow never recorded the booked time.** `Booked Call Date/Time` and
+`Calendly Details` existed on the account but sat empty on every lead. The new script
+fills them. Note that GHL's DATE field stores the day only, so the exact time lives in
+the `Calendly Details` text.
+
+Still open:
+1. Keep Calendly, or move booking to a GHL calendar so it is one system?
+2. Should "no budget" still be allowed to book, or route straight to nurture?
+
+**Do not delete the Fillout form until the new path is live and tested** — it holds the
+historical submissions.
