@@ -1,0 +1,245 @@
+/* ===========================================================================
+   CERTIFIED CLOSERS APPLICATION - styles
+   Everything is scoped under .cc so this can drop into the Tailwind sales page
+   without colliding with it. Never write a bare element selector in here.
+
+   Two modes, set with data-mode on the mount element:
+     standalone  full page                          (/apply/)
+     embedded    sits inside the sales page's max-w-xl column
+   =========================================================================== */
+
+.cc {
+  --cc-cream:#EEE8DF;
+  --cc-card:#ffffff;
+  --cc-ink:#0f0f0f;
+  --cc-navy:#051025;
+  --cc-ink-soft:#5b6169;
+  --cc-ink-faint:#8b9098;
+  --cc-line:#E0D9CE;
+  --cc-line-soft:#EDE7DE;
+  --cc-gold:#B8860B;
+  --cc-green:#166534;
+  --cc-red:#991b1b;
+  --cc-focus:rgba(184,134,11,.18);
+
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  color:var(--cc-ink);
+  -webkit-font-smoothing:antialiased;
+  text-align:left;
+}
+.cc *{box-sizing:border-box}
+.cc [hidden]{display:none !important}
+
+/* ---------------------------------------------------------------------------
+   STEPPER
+   Sits directly on the card. No band, no divider, no border. Numbered dots
+   with the label underneath, joined by a rail that fills in as you progress.
+--------------------------------------------------------------------------- */
+.cc-steps{display:flex;align-items:flex-start}
+.cc-step{
+  position:relative;flex:1;
+  display:flex;flex-direction:column;align-items:center;gap:11px;
+}
+/* the rail to the NEXT step, drawn from this dot's edge to the next dot's edge */
+.cc-step::after{
+  content:"";position:absolute;top:16px;
+  left:calc(50% + 21px);width:calc(100% - 42px);height:2px;
+  background:var(--cc-line);border-radius:2px;
+  transition:background .35s ease;
+}
+.cc-step:last-child::after{display:none}
+.cc-step.is-done::after{background:var(--cc-green)}
+
+.cc-dot{
+  position:relative;z-index:1;
+  width:34px;height:34px;border-radius:999px;flex-shrink:0;
+  border:2px solid var(--cc-line);background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .3s cubic-bezier(.34,1.4,.64,1);
+}
+.cc-num{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  color:var(--cc-ink-faint);line-height:1;transition:color .3s ease;
+}
+.cc-dot svg{position:absolute;width:15px;height:15px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transform:scale(.5);transition:all .3s cubic-bezier(.34,1.4,.64,1)}
+
+.cc-step-label{
+  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--cc-ink-faint);transition:color .3s ease;white-space:nowrap;
+}
+
+.cc-step.is-active .cc-dot{
+  border-color:var(--cc-navy);background:var(--cc-navy);
+  box-shadow:0 0 0 5px rgba(5,16,37,.07);
+}
+.cc-step.is-active .cc-num{color:#fff}
+.cc-step.is-active .cc-step-label{color:var(--cc-ink)}
+
+.cc-step.is-done .cc-dot{border-color:var(--cc-green);background:var(--cc-green);box-shadow:none}
+.cc-step.is-done .cc-num{opacity:0}
+.cc-step.is-done .cc-dot svg{opacity:1;transform:scale(1)}
+.cc-step.is-done .cc-step-label{color:var(--cc-green)}
+
+/* ---------- CARD ---------- */
+.cc-card{
+  background:var(--cc-card);border:1px solid var(--cc-line-soft);
+  border-radius:10px;box-shadow:0 10px 30px -18px rgba(0,0,0,.14);
+}
+
+/* ---------------------------------------------------------------------------
+   QUESTIONS
+   Base weight is 400 so the words Roy bolded actually stand out at 700.
+--------------------------------------------------------------------------- */
+.cc-field{margin-bottom:26px;scroll-margin-top:96px}
+.cc-q{display:block;font-size:19px;line-height:1.45;font-weight:400;color:var(--cc-ink);margin-bottom:14px}
+.cc-q strong{font-weight:700}
+.cc-q em{font-style:italic}
+.cc-req{color:var(--cc-ink-faint);font-weight:400;margin-left:3px}
+.cc-lede{display:block;font-weight:400;margin-bottom:14px}
+
+.cc input[type=text],.cc input[type=email],.cc input[type=tel],.cc textarea{
+  width:100%;font-family:inherit;font-size:16px;color:var(--cc-ink);
+  background:#fff;border:1px solid var(--cc-line);border-radius:8px;
+  padding:15px 16px;margin:0;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.cc textarea{resize:vertical;min-height:56px;line-height:1.5}
+.cc input::placeholder,.cc textarea::placeholder{color:#b3b8bf}
+.cc input:focus,.cc textarea:focus{
+  outline:none;border-color:var(--cc-ink);box-shadow:0 0 0 4px var(--cc-focus);
+}
+.cc-with-icon{position:relative}
+.cc-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--cc-ink-faint);pointer-events:none;display:flex}
+.cc-ico svg{width:19px;height:19px}
+/* Needs the .cc prefix to outweigh `.cc input[type=email]` above, otherwise the
+   icon sits on top of the placeholder. */
+.cc .cc-with-icon input{padding-left:46px}
+
+.cc-phone{display:flex;align-items:stretch;border:1px solid var(--cc-line);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
+.cc-phone.is-focus{border-color:var(--cc-ink);box-shadow:0 0 0 4px var(--cc-focus)}
+.cc-cc{display:flex;align-items:center;gap:7px;padding:0 14px;border-right:1px solid var(--cc-line-soft);background:#FCFAF7;font-size:15px;color:var(--cc-ink-soft);font-weight:500;white-space:nowrap}
+.cc-phone input{border:none !important;border-radius:0;box-shadow:none !important;flex:1;min-width:0}
+
+/* ---------------------------------------------------------------------------
+   OPTIONS
+   Each answer is its own rectangle, the whole thing clickable, with a shade on
+   hover. Text stays normal weight - the box carries the state, not the type.
+--------------------------------------------------------------------------- */
+.cc-opts{display:flex;flex-direction:column;gap:10px}
+.cc-opt{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:17px 19px;margin:0;cursor:pointer;
+  background:#fff;border:1px solid var(--cc-line);border-radius:8px;
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+/* 1px not 0 so screen readers and keyboard focus still find it */
+.cc-opt input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.cc-mark{
+  width:21px;height:21px;border-radius:999px;border:1.5px solid #c2c8d0;
+  flex-shrink:0;margin-top:1px;position:relative;background:#fff;
+  transition:border-color .15s ease,background .15s ease;
+}
+.cc-mark::after{
+  content:"";position:absolute;inset:0;margin:auto;
+  width:9px;height:9px;border-radius:999px;background:#fff;
+  transform:scale(0);transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.cc-opt-text{font-size:16.5px;line-height:1.5;color:var(--cc-ink);font-weight:400}
+
+/* the shade */
+.cc-opt:hover{background:#F6F2EC;border-color:#CFC6B8}
+.cc-opt:hover .cc-mark{border-color:var(--cc-ink-soft)}
+
+.cc-opt.is-sel{background:#F6F2EC;border-color:var(--cc-navy);box-shadow:0 0 0 1px var(--cc-navy)}
+.cc-opt.is-sel .cc-mark{border-color:var(--cc-navy);background:var(--cc-navy)}
+.cc-opt.is-sel .cc-mark::after{transform:scale(1)}
+.cc-opt:focus-within{box-shadow:0 0 0 4px var(--cc-focus)}
+.cc-opt.is-sel:focus-within{box-shadow:0 0 0 1px var(--cc-navy),0 0 0 5px var(--cc-focus)}
+
+.cc-rule{height:1px;background:var(--cc-line-soft);border:0;margin:34px 0}
+
+/* ---------- ERRORS ---------- */
+.cc-err{display:none;color:var(--cc-red);font-size:14.5px;margin-top:8px;font-weight:500}
+.cc-field.is-bad .cc-err{display:block}
+.cc-field.is-bad input,.cc-field.is-bad textarea,.cc-field.is-bad .cc-phone{border-color:var(--cc-red)}
+.cc-field.is-bad .cc-opt{border-color:#dcb3b3}
+
+/* ---------- BUTTONS ---------- */
+.cc-actions{margin-top:36px;text-align:center}
+.cc-btn{
+  font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
+  text-transform:uppercase;letter-spacing:.16em;
+  background:var(--cc-ink);color:#fff;border:none;border-radius:4px;
+  padding:20px 44px;cursor:pointer;width:100%;max-width:420px;
+  transition:opacity .2s ease,transform .1s ease;
+}
+.cc-btn:hover{opacity:.9}
+.cc-btn:active{transform:translateY(1px)}
+.cc-btn:focus-visible{outline:3px solid var(--cc-gold);outline-offset:3px}
+.cc-btn[disabled]{opacity:.55;cursor:not-allowed}
+
+/* ---------- SCHEDULE + ENDINGS ---------- */
+.cc-head{text-align:center;margin-bottom:30px}
+.cc-head h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;line-height:1.2;margin:0 0 12px;letter-spacing:-.01em;color:var(--cc-ink);text-transform:none}
+.cc-head p{margin:0;color:var(--cc-ink-soft);font-size:17px;line-height:1.55}
+/* Height starts at the calendar view's real content height and form.js grows it
+   from Calendly's page_height messages as the flow gets taller. It must be set
+   here as well, because with no height the iframe collapses to the browser's
+   150px default and you get a header floating over empty space. */
+#cc-cal{height:600px;transition:height .25s ease}
+#cc-cal iframe{width:100%;height:100%;border:0;border-radius:8px}
+@media (prefers-reduced-motion:reduce){#cc-cal{transition:none}}
+.cc-end{text-align:center;padding:20px 0}
+.cc-ring{width:66px;height:66px;border-radius:999px;margin:0 auto 24px;display:flex;align-items:center;justify-content:center}
+.cc-ring.is-ok{background:rgba(22,101,52,.1)}
+.cc-ring.is-warn{background:rgba(184,134,11,.13)}
+.cc-ring svg{width:30px;height:30px;fill:none;stroke-width:2.5}
+.cc-ring.is-ok svg{stroke:var(--cc-green)}
+.cc-ring.is-warn svg{stroke:#8A6516}
+.cc-end h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:29px;margin:0 0 14px;line-height:1.22;color:var(--cc-ink);text-transform:none}
+.cc-end p{color:var(--cc-ink-soft);font-size:17px;line-height:1.6;margin:0 auto 16px;max-width:520px}
+.cc-link{display:inline-block;margin-top:16px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.14em;color:var(--cc-ink);text-decoration:none;border-bottom:2px solid var(--cc-gold);padding-bottom:3px}
+.cc-link:hover{color:var(--cc-gold)}
+
+/* ===========================================================================
+   MODE: STANDALONE  (/apply/)
+   =========================================================================== */
+.cc[data-mode="standalone"]{display:block}
+.cc[data-mode="standalone"] .cc-shell{max-width:880px;margin:0 auto;padding:40px 0 96px}
+.cc[data-mode="standalone"] .cc-card{padding:38px 48px 44px}
+.cc[data-mode="standalone"] .cc-steps{max-width:520px;margin:0 auto 34px}
+
+/* ===========================================================================
+   MODE: EMBEDDED  (inside the sales page's max-w-xl column)
+   =========================================================================== */
+.cc[data-mode="embedded"]{display:block;width:100%}
+.cc[data-mode="embedded"] .cc-card{padding:32px 34px 34px}
+.cc[data-mode="embedded"] .cc-steps{max-width:420px;margin:0 auto 30px}
+.cc[data-mode="embedded"] .cc-q{font-size:17.5px}
+.cc[data-mode="embedded"] .cc-opt{padding:15px 16px}
+.cc[data-mode="embedded"] .cc-opts{gap:9px}
+.cc[data-mode="embedded"] .cc-opt-text{font-size:15.5px}
+.cc[data-mode="embedded"] .cc-rule{margin:30px 0}
+.cc[data-mode="embedded"] .cc-head h2{font-size:25px}
+.cc[data-mode="embedded"] .cc-end h2{font-size:24px}
+.cc[data-mode="embedded"] .cc-btn{padding:18px 28px;font-size:14px;letter-spacing:.14em}
+
+/* ---------- PHONE ---------- */
+@media (max-width:720px){
+  .cc[data-mode="standalone"] .cc-shell{padding:24px 0 64px}
+  .cc[data-mode="standalone"] .cc-card{padding:26px 20px 30px;border-radius:8px}
+  .cc[data-mode="embedded"] .cc-card{padding:24px 18px 28px}
+  .cc-steps{margin-bottom:26px !important}
+  .cc-step-label{font-size:10.5px;letter-spacing:.07em}
+  .cc-dot{width:30px;height:30px}
+  .cc-num{font-size:13px}
+  .cc-step::after{top:14px;left:calc(50% + 19px);width:calc(100% - 38px)}
+  .cc-q{font-size:17px}
+  .cc-opt-text{font-size:15.5px}
+  .cc-head h2,.cc-end h2{font-size:24px}
+  .cc-btn{max-width:none;padding:19px 24px;letter-spacing:.12em}
+}
+@media (prefers-reduced-motion:reduce){
+  .cc *{transition:none !important;animation:none !important}
+}

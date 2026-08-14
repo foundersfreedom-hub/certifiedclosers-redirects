@@ -24,8 +24,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://fast.wistia.com">
 <link rel="dns-prefetch" href="https://fast.wistia.net">
-<link rel="dns-prefetch" href="https://server.fillout.com">
+<link rel="dns-prefetch" href="https://assets.calendly.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;500&display=swap" rel="stylesheet">
+<!-- Bump ?v= whenever form.css or form.js changes. Python's http.server and
+     GitHub Pages both send no Cache-Control, so browsers hold stale copies. -->
+<link rel="stylesheet" href="/apply/form.css?v=2026-08-14h">
 <script>
   /* Start at the top on reload without yanking a reader who already scrolled. */
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -170,9 +173,11 @@ wistia-player[media-id='n2tjl4r101']:not(:defined){background:center/contain no-
         </h3>
         <p class="font-serif-luxury font-medium text-[25px] sm:text-[37.5px] md:text-[45px] text-[#2C365A] mb-8 w-full text-center leading-relaxed -mt-1 md:-mt-2">Book a call and give me 99 days</p>
 
-        <!-- FILLOUT EMBED -->
+        <!-- APPLICATION FORM (replaced the Fillout embed 2026-08-13).
+             Markup, styles and logic all live in apply/form.js + apply/form.css,
+             which is the same code /apply/ runs. Edit it there, never here. -->
         <div class="max-w-xl mx-auto mb-16">
-          <div style="width:100%;height:500px;" data-fillout-id="1qc2KvTNQfus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div><script src="https://server.fillout.com/embed/v1/" defer></script>
+          <div id="cc-apply" data-mode="embedded"></div>
         </div>
       </section>
     </div>
@@ -337,6 +342,8 @@ wistia-player[media-id='n2tjl4r101']:not(:defined){background:center/contain no-
     </section>
   </div>
 </div>
+
+<script src="/apply/form.js?v=2026-08-14h" defer></script>
 
 <script>
   function scrollToCTA(e) {
