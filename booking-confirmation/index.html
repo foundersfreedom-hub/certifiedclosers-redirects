@@ -27,8 +27,12 @@
   --pastel-black:#121212; --luxury-border:#E7E5E4; --cream-beige:#F5F2ED;
   --deep-brown-bg:#1B1411; --deep-brown-accent:#543310;
 }
-html{overflow-x:hidden;}
-body{background-color:var(--luxury-base);color:var(--luxury-dark);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+/* The page background propagates to the browser canvas, and this page's is nearly
+   white. So rubber-banding past the top or bottom flashed a white bar. Painting
+   the canvas the footer colour kills it, and overscroll-behavior stops the bounce
+   happening at all where it is supported. */
+html{overflow-x:hidden;background-color:#1E1512;overscroll-behavior:none;}
+body{background-color:var(--luxury-base);color:var(--luxury-dark);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
 .font-display{font-family:'Anton',sans-serif;}
 .font-future{font-family:'Space Grotesk',sans-serif;}
 .bg-grain{position:relative;}
