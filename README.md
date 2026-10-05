@@ -11,7 +11,7 @@ The **homepage** plus branded affiliate redirects on the apex domain
 | **certifiedclosers.net** | **the sales page (`index.html`) — book a call via the Fillout form** |
 | certifiedclosers.net/apply | our own application form (`apply/index.html`), built to replace the Fillout embed |
 | certifiedclosers.net/booking-confirmation | **LIVE.** Where someone lands the instant Calendly confirms their booking |
-| certifiedclosers.net/dispo | JV deal submission page (`dispo/index.html`) |
+| certifiedclosers.net/dispo | Automatic redirect to https://dispoalert.com/; old shared links keep working |
 | certifiedclosers.net/propstream | https://trial.propstreampro.com/closersclub/ |
 | certifiedclosers.net/dealmachine | https://app.dealmachine.com/sign-up?fpr=certifiedclosers |
 | certifiedclosers.net/dialer | https://batchdialer.com/closersclub10 |
@@ -174,7 +174,7 @@ apply/index.html       standalone form page at /apply/
 serve.js               local preview server (node serve.js -> :5858)
 roy.webp               founder photo used by index.html (self-hosted on purpose)
 404.html               any unknown path -> Skool
-dispo/index.html       JV deal submission page
+dispo/index.html       -> https://dispoalert.com/ (query strings and anchors preserved)
 propstream/index.html  -> PropStream affiliate
 dealmachine/index.html -> DealMachine affiliate
 dialer/index.html      -> BatchDialer affiliate
@@ -258,3 +258,16 @@ CONFIG line; set it to `""` to go back to the in-page "you're booked" view.
 
 The origin check on that listener (`e.origin !== "https://calendly.com"`) is load
 bearing. Without it any page or frame could fake a booking. Don't remove it.
+
+## October 5, 2026: Dispo Alert
+
+The deal submission page moved to **https://dispoalert.com/** on Vercel's
+`founders-freedom-llc/sidequest` project. `/dispo`, `/dispo/`, and
+`/dispo/index.html` keep working with an immediate browser redirect. Query
+strings and fragment anchors carry over. Visitors without JavaScript get a
+meta refresh and a clickable fallback. The homepage and affiliate routes
+stay on GitHub Pages.
+
+The maintained deal form is now in Ambius at `sidequests/websites/dispoalert/`;
+the shared release builder is `sidequests/hosting/sidequest/`. Discord delivery
+uses a server endpoint and a private Vercel environment variable.
