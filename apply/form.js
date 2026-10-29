@@ -17,7 +17,7 @@
 // Bump this whenever this file changes, and bump the ?v= on the <script>/<link>
 // tags to match. If the form ever misbehaves, open the console: this tells you
 // straight away whether the browser is running the current file or a stale one.
-var VERSION = "2026-08-14h";
+var VERSION = "2026-10-29a";
 window.CC_APPLY_VERSION = VERSION;
 console.log("[apply] form " + VERSION);
 
@@ -54,7 +54,7 @@ var CONFIG = {
   // service deployed on Railway, project "certifiedclosers-leads".
   submitUrl: (location.hostname === "localhost" || location.hostname === "127.0.0.1")
     ? "http://127.0.0.1:5959/apply"
-    : "https://intake-production-9ca0.up.railway.app/apply",
+    : "https://intake-1afn.onrender.com/apply",
 
   // Where someone lands the instant Calendly confirms the booking. Set to ""
   // to keep them here and show the in-page "you're booked" view instead.
